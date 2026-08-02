@@ -1,0 +1,16 @@
+# Secrets - never commit these
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NOTE: data/sent_listings.db is intentionally NOT ignored - it is committed
+# back to the repo after every GitHub Actions run so dedupe state persists.

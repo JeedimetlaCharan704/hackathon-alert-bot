@@ -1,0 +1,2 @@
+# This directory is committed so the SQLite database has a home.
+# data/sent_listings.db is created automatically on the first run.

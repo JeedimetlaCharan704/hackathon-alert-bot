@@ -1,0 +1,43 @@
+name: Run Hackathon Alert Bot
+
+on:
+  schedule:
+    # Every 4 hours (UTC). Keep this at 4-hourly or slower to stay well
+    # within GitHub Actions free-tier minutes for private repos.
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run the bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          TELANGANA_CHANNEL_ID: ${{ secrets.TELANGANA_CHANNEL_ID }}
+          INDIA_CHANNEL_ID: ${{ secrets.INDIA_CHANNEL_ID }}
+          GLOBAL_CHANNEL_ID: ${{ secrets.GLOBAL_CHANNEL_ID }}
+        run: python main.py
+
+      - name: Commit updated database if changed
+        run: |
+          if git status --porcelain | grep -q 'data/sent_listings.db'; then
+            git config user.name "hackathon-alert-bot"
+            git config user.email "actions@github.com"
+            git add data/sent_listings.db
+            git commit -m "Update sent listings database [skip ci]"
+            git push
+          else
+            echo "No database changes to commit."
+          fi
