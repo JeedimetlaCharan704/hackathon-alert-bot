@@ -6,6 +6,7 @@ from sources import (
     devpost,
     hackerrank,
     internshala,
+    kaggle,
     lablab,
     mlh,
     reskilll,
@@ -22,4 +23,5 @@ ALL_SOURCES = [
     ("mlh", mlh.fetch_mlh),
     ("codechef", codechef.fetch_codechef),
     ("hackerrank", hackerrank.fetch_hackerrank),
+    ("kaggle", kaggle.fetch_kaggle),
 ]

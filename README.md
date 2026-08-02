@@ -50,9 +50,10 @@ already alerted across every future run, even though each run starts fresh.
 
 ## Features
 
-- **9 sources scraped:** Devfolio, Unstop, Reskilll, Internshala, Devpost,
-  lablab.ai, MLH, CodeChef, HackerRank — hackathons **and** coding contests
-  (CodeChef Starters, HackerRank contests, etc.)
+- **10 sources scraped:** Devfolio, Unstop, Reskilll, Internshala, Devpost,
+  lablab.ai, MLH, CodeChef, HackerRank, **Kaggle** — hackathons **and** coding
+  contests, including real **cash-prize** competitions (Kaggle prizes up to
+  $850K)
 - **Rule-based filtering:** prize threshold, keyword match, deadline not passed,
   location exclusions — configurable in `config.py`
 - **SQLite deduplication:** `data/sent_listings.db` stores every sent URL and is
@@ -84,7 +85,8 @@ hackathon-alert-bot/
 │   ├── lablab.py              # lablab.ai/ai-hackathons
 │   ├── mlh.py                 # mlh.io/events
 │   ├── codechef.py            # codechef.com contests (public API)
-│   └── hackerrank.py          # hackerrank.com contests (public API)
+│   ├── hackerrank.py          # hackerrank.com contests (public API)
+│   └── kaggle.py              # kaggle.com competitions (official API, token)
 ├── data/
 │   └── sent_listings.db       # dedupe database (committed after each run)
 ├── config.py                  # thresholds, keywords, channel IDs (from env)
@@ -259,6 +261,7 @@ Under **Repo → Settings → Secrets and variables → Actions → New reposito
 | `TELANGANA_CHANNEL_ID` | Telangana channel chat ID |
 | `INDIA_CHANNEL_ID` | India channel chat ID |
 | `GLOBAL_CHANNEL_ID` | Global channel chat ID |
+| `KAGGLE_API_TOKEN` | optional — enables Kaggle cash-prize alerts (free from kaggle.com → Settings → API) |
 
 ### 3. Trigger a manual run to confirm
 
@@ -316,6 +319,9 @@ Everything lives at the top of `config.py`:
 - **HackerRank** — uses the public REST feed (`/rest/contests/upcoming`). Old
   archived contests still appear in that feed, but the deadline filter drops
   them. No prize amounts either.
+- **Kaggle** — official API (`/api/v1/competitions/list`) with your free
+  `KAGGLE_API_TOKEN`. Real prize money (USD/INR). Only cash-prize competitions
+  are kept — "Knowledge"/"Swag" rewards are dropped.
 - **Internshala** — parses competition cards. Internshala **frequently blocks bots**
   (HTTP 403). When blocked it logs a warning and returns nothing — the run
   continues. Seeing 0 Internshala listings is the block, not a bug.

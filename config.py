@@ -16,6 +16,10 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
 
+# Free personal Kaggle API token (https://www.kaggle.com -> Settings -> API).
+# Used by sources/kaggle.py to fetch cash-prize competitions.
+KAGGLE_API_TOKEN = os.getenv("KAGGLE_API_TOKEN", "").strip()
+
 TELANGANA_CHANNEL_ID = os.getenv("TELANGANA_CHANNEL_ID", "").strip()
 INDIA_CHANNEL_ID = os.getenv("INDIA_CHANNEL_ID", "").strip()
 GLOBAL_CHANNEL_ID = os.getenv("GLOBAL_CHANNEL_ID", "").strip()
@@ -64,6 +68,7 @@ KEYWORDS = [
     "codechef",
     "hackerrank",
     "starters",
+    "competition",
 ]
 
 # Any listing whose location or country contains one of these strings is
