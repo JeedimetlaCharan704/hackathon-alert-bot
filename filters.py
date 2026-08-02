@@ -7,8 +7,10 @@ from datetime import datetime, timezone
 from config import (
     EXCLUDE_LOCATIONS,
     KEYWORDS,
+    LIKELY_CASH_SOURCES,
     MIN_PRIZE_INR,
     MIN_PRIZE_USD,
+    PASS_LIKELY_CASH_PRIZE,
     PASS_UNKNOWN_PRIZE,
 )
 
@@ -32,7 +34,13 @@ def extract_tags(listing: dict) -> list:
 def _prize_passes(listing: dict) -> bool:
     value = listing.get("prize_value")
     if value is None:
-        return PASS_UNKNOWN_PRIZE
+        if PASS_UNKNOWN_PRIZE:
+            return True
+        # No amount shown, but the source normally awards cash prizes.
+        return (
+            PASS_LIKELY_CASH_PRIZE
+            and listing.get("source") in LIKELY_CASH_SOURCES
+        )
     if listing.get("prize_currency") == "INR":
         return value >= MIN_PRIZE_INR
     if listing.get("prize_currency") == "USD":

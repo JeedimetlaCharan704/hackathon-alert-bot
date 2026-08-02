@@ -42,6 +42,21 @@ MIN_PRIZE_USD = 100
 # Set to False to alert ONLY competitions with a real cash prize.
 PASS_UNKNOWN_PRIZE = False
 
+# Even when no prize amount is shown, alert listings from sources where a
+# cash prize is normally expected (hackathon platforms whose events typically
+# award prizes). Kept separate from PASS_UNKNOWN_PRIZE so you can alert
+# "likely cash" events without also flooding in random no-prize listings.
+PASS_LIKELY_CASH_PRIZE = True
+LIKELY_CASH_SOURCES = {
+    "devfolio",  # hackathon platform - prize pools are the norm
+    "devpost",   # most hackathons list prizes on the challenge page
+    "unstop",    # competitions/hackathons usually carry prizes
+    "lablab",    # ai events with prize pools
+    "mlh",       # collegiate hackathons with sponsor prizes
+    "reskilll",  # hackathons; prize shown when available
+    "codechef",  # rated contests award cash to top finishers
+}
+
 # A listing passes if at least one of these appears in its title or tags
 # (matched on word boundaries; multi-word phrases match as substrings).
 KEYWORDS = [

@@ -136,10 +136,10 @@ hackathon-alert-bot/
    ```
 
 2. **Filter** — every listing must pass **all** these rules (`filters.py`):
-   - Prize is `>= MIN_PRIZE_INR` (INR) or `>= MIN_PRIZE_USD` (USD) — or prize is
-     unknown and `PASS_UNKNOWN_PRIZE` is `True` (default is `False`:
-     **cash-prize-only mode** — alerts fire only for competitions with a real
-     prize amount)
+   - Prize rule (three tiers): listed prize `>= MIN_PRIZE_INR` (INR) or
+     `>= MIN_PRIZE_USD` (USD) always passes; no prize shown → passes only if
+     the source is in `LIKELY_CASH_SOURCES` (platforms whose events normally
+     award cash) or `PASS_UNKNOWN_PRIZE` is `True`
    - At least one `KEYWORDS` entry appears in the title/tags
    - Deadline is missing or in the future
    - Location is not in `EXCLUDE_LOCATIONS`
@@ -295,7 +295,9 @@ Everything lives at the top of `config.py`:
 |---|---|---|
 | `MIN_PRIZE_INR` | `10000` | Minimum prize for INR listings |
 | `MIN_PRIZE_USD` | `100` | Minimum prize for USD listings |
-| `PASS_UNKNOWN_PRIZE` | `False` | Require a real prize for every alert (cash-prize-only mode). Set to `True` to also send listings with no prize info. |
+| `PASS_UNKNOWN_PRIZE` | `False` | Allow listings with no prize info at all (every source, even no-prize ones) |
+| `PASS_LIKELY_CASH_PRIZE` | `True` | Let no-prize listings through when their source normally awards cash prizes |
+| `LIKELY_CASH_SOURCES` | `{devfolio, devpost, unstop, lablab, mlh, reskilll, codechef}` | Sources treated as "likely cash" when no amount is shown |
 | `KEYWORDS` | `["ai", "blockchain", ...]` | At least one must match the title/tags |
 | `EXCLUDE_LOCATIONS` | `[]` | Drop listings whose location matches |
 | `REQUEST_DELAY_SECONDS` | `1.5` | Politeness delay between HTTP requests |
@@ -307,8 +309,8 @@ Everything lives at the top of `config.py`:
 
 - **Devpost** — uses its JSON API (`devpost.com/api/hackathons`).
 - **MLH** — parses schema.org microdata on the season page. MLH doesn't publish
-  prize amounts, so these have `prize_value=None` (no alerts in cash-prize-only
-  mode).
+  prize amounts, so these have `prize_value=None` and alert via the
+  `LIKELY_CASH_SOURCES` rule (collegiate hackathons usually have prizes).
 - **Devfolio** — parses server-rendered hackathon cards.
 - **lablab.ai** — extracts the JSON-LD `ItemList` from the page's Next.js payload
   (all events are online → Global channel).
