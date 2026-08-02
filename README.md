@@ -137,7 +137,9 @@ hackathon-alert-bot/
 
 2. **Filter** — every listing must pass **all** these rules (`filters.py`):
    - Prize is `>= MIN_PRIZE_INR` (INR) or `>= MIN_PRIZE_USD` (USD) — or prize is
-     unknown and `PASS_UNKNOWN_PRIZE` is `True`
+     unknown and `PASS_UNKNOWN_PRIZE` is `True` (default is `False`:
+     **cash-prize-only mode** — alerts fire only for competitions with a real
+     prize amount)
    - At least one `KEYWORDS` entry appears in the title/tags
    - Deadline is missing or in the future
    - Location is not in `EXCLUDE_LOCATIONS`
@@ -293,7 +295,7 @@ Everything lives at the top of `config.py`:
 |---|---|---|
 | `MIN_PRIZE_INR` | `10000` | Minimum prize for INR listings |
 | `MIN_PRIZE_USD` | `100` | Minimum prize for USD listings |
-| `PASS_UNKNOWN_PRIZE` | `True` | Allow listings with no detectable prize (sources like MLH don't publish prizes) |
+| `PASS_UNKNOWN_PRIZE` | `False` | Require a real prize for every alert (cash-prize-only mode). Set to `True` to also send listings with no prize info. |
 | `KEYWORDS` | `["ai", "blockchain", ...]` | At least one must match the title/tags |
 | `EXCLUDE_LOCATIONS` | `[]` | Drop listings whose location matches |
 | `REQUEST_DELAY_SECONDS` | `1.5` | Politeness delay between HTTP requests |
@@ -305,8 +307,8 @@ Everything lives at the top of `config.py`:
 
 - **Devpost** — uses its JSON API (`devpost.com/api/hackathons`).
 - **MLH** — parses schema.org microdata on the season page. MLH doesn't publish
-  prize amounts, so these have `prize_value=None` (they still alert while
-  `PASS_UNKNOWN_PRIZE=True`).
+  prize amounts, so these have `prize_value=None` (no alerts in cash-prize-only
+  mode).
 - **Devfolio** — parses server-rendered hackathon cards.
 - **lablab.ai** — extracts the JSON-LD `ItemList` from the page's Next.js payload
   (all events are online → Global channel).

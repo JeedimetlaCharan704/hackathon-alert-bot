@@ -39,9 +39,8 @@ MIN_PRIZE_INR = 10000
 MIN_PRIZE_USD = 100
 
 # If a listing has no detectable prize text, allow it through anyway?
-# Default True so sources that do not publish prize amounts still produce
-# alerts. Set to False to require a qualifying prize for every alert.
-PASS_UNKNOWN_PRIZE = True
+# Set to False to alert ONLY competitions with a real cash prize.
+PASS_UNKNOWN_PRIZE = False
 
 # A listing passes if at least one of these appears in its title or tags
 # (matched on word boundaries; multi-word phrases match as substrings).
