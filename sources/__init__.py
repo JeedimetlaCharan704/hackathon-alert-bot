@@ -1,6 +1,16 @@
 """Source registry. Each source exposes a fetch_<source>() -> list[dict]."""
 
-from sources import devfolio, devpost, internshala, lablab, mlh, reskilll, unstop
+from sources import (
+    codechef,
+    devfolio,
+    devpost,
+    hackerrank,
+    internshala,
+    lablab,
+    mlh,
+    reskilll,
+    unstop,
+)
 
 ALL_SOURCES = [
     ("devfolio", devfolio.fetch_devfolio),
@@ -10,4 +20,6 @@ ALL_SOURCES = [
     ("devpost", devpost.fetch_devpost),
     ("lablab", lablab.fetch_lablab),
     ("mlh", mlh.fetch_mlh),
+    ("codechef", codechef.fetch_codechef),
+    ("hackerrank", hackerrank.fetch_hackerrank),
 ]

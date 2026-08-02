@@ -53,6 +53,17 @@ KEYWORDS = [
     "robotics",
     "genai",
     "llm",
+    # coding contests / challenges (CodeChef, HackerRank, ...)
+    "coding",
+    "contest",
+    "challenge",
+    "competitive",
+    "programming",
+    "algorithm",
+    "dsa",
+    "codechef",
+    "hackerrank",
+    "starters",
 ]
 
 # Any listing whose location or country contains one of these strings is

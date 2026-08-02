@@ -146,11 +146,17 @@ def _candidate_dates(text: str):
     text = " " + text + " "
     found = []
 
+    # Prefer explicit ISO dates when present. Without this, the year-month
+    # fallback below ("2026-08" -> Aug 28) would override a real ISO deadline
+    # like "2026-08-05" and wrongly push it to the 28th.
+    iso_found = []
     for m in _ISO.finditer(text):
         try:
-            found.append(datetime(int(m[1]), int(m[2]), int(m[3])).date())
+            iso_found.append(datetime(int(m[1]), int(m[2]), int(m[3])).date())
         except ValueError:
             pass
+    if iso_found:
+        return iso_found
 
     for m in _MONTH_RANGE_YEAR.finditer(text):
         # e.g. "Dec 11 - 15, 2026" -> use the later day as the deadline

@@ -30,7 +30,7 @@ even when your laptop is off**. No paid hosting, no paid APIs, no LLM calls.
 │   └──────┬───────┘   └──────┬───────┘   └──────────────┬───────────────┘   │
 │          │                 │                           │                   │
 │          ▼                 ▼                           ▼                   │
-│   334 raw listings    46 pass rules             posted to Telegram         │
+│   ~350 raw listings    ~50 pass rules             posted to Telegram         │
 │   (typical run)       (prize + keyword +         channels (only NEW ones,  │
 │                        deadline not passed)       duplicates skipped)      │
 │                                                                            │
@@ -50,8 +50,9 @@ already alerted across every future run, even though each run starts fresh.
 
 ## Features
 
-- **7 sources scraped:** Devfolio, Unstop, Reskilll, Internshala, Devpost,
-  lablab.ai, MLH
+- **9 sources scraped:** Devfolio, Unstop, Reskilll, Internshala, Devpost,
+  lablab.ai, MLH, CodeChef, HackerRank — hackathons **and** coding contests
+  (CodeChef Starters, HackerRank contests, etc.)
 - **Rule-based filtering:** prize threshold, keyword match, deadline not passed,
   location exclusions — configurable in `config.py`
 - **SQLite deduplication:** `data/sent_listings.db` stores every sent URL and is
@@ -81,7 +82,9 @@ hackathon-alert-bot/
 │   ├── internshala.py         # internshala.com/competitions/hackathons
 │   ├── devpost.py             # devpost.com/hackathons
 │   ├── lablab.py              # lablab.ai/ai-hackathons
-│   └── mlh.py                 # mlh.io/events
+│   ├── mlh.py                 # mlh.io/events
+│   ├── codechef.py            # codechef.com contests (public API)
+│   └── hackerrank.py          # hackerrank.com contests (public API)
 ├── data/
 │   └── sent_listings.db       # dedupe database (committed after each run)
 ├── config.py                  # thresholds, keywords, channel IDs (from env)
@@ -307,6 +310,12 @@ Everything lives at the top of `config.py`:
 - **Unstop** — uses the public search endpoint (`/api/public/opportunity/search-result`).
 - **Reskilll** — parses `reskilll.com/allhacks` cards (contains many old events,
   which the deadline filter drops).
+- **CodeChef** — uses the public contest API (`/api/list/contests/all`), returns
+  future + running contests (Starters, rated contests). No prize amounts in the
+  feed, so these alert as "Prize: Not specified".
+- **HackerRank** — uses the public REST feed (`/rest/contests/upcoming`). Old
+  archived contests still appear in that feed, but the deadline filter drops
+  them. No prize amounts either.
 - **Internshala** — parses competition cards. Internshala **frequently blocks bots**
   (HTTP 403). When blocked it logs a warning and returns nothing — the run
   continues. Seeing 0 Internshala listings is the block, not a bug.
