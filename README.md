@@ -50,12 +50,15 @@ already alerted across every future run, even though each run starts fresh.
 
 ## Features
 
-- **10 sources scraped:** Devfolio, Unstop, Reskilll, Internshala, Devpost,
-  lablab.ai, MLH, CodeChef, HackerRank, **Kaggle** — hackathons **and** coding
-  contests, including real **cash-prize** competitions (Kaggle prizes up to
-  $850K)
-- **Rule-based filtering:** prize threshold, keyword match, deadline not passed,
-  location exclusions — configurable in `config.py`
+- **16 sources scraped:** Devfolio, Unstop, Reskilll, Internshala, Devpost,
+  lablab.ai, MLH, CodeChef, HackerRank, **Kaggle**, **Codeforces**, **AtCoder**,
+  **HackerEarth**, **ETHGlobal**, **AIcrowd**, **MyGov / Innovate India** —
+  hackathons, coding contests, AI/ML competitions, Web3 hackathons and
+  government challenges, including real **cash-prize** competitions (Kaggle
+  prizes up to $850K)
+- **Rule-based filtering:** prize threshold, deadline not passed, location
+  exclusions, and optional keyword match — configurable in `config.py`
+  (`REQUIRE_KEYWORD_MATCH = False` alerts every tech contest)
 - **SQLite deduplication:** `data/sent_listings.db` stores every sent URL and is
   committed back to the repo after each run so nothing is ever alerted twice
 - **Fault tolerant:** one broken source is logged and skipped — it never crashes
@@ -86,7 +89,13 @@ hackathon-alert-bot/
 │   ├── mlh.py                 # mlh.io/events
 │   ├── codechef.py            # codechef.com contests (public API)
 │   ├── hackerrank.py          # hackerrank.com contests (public API)
-│   └── kaggle.py              # kaggle.com competitions (official API, token)
+│   ├── kaggle.py              # kaggle.com competitions (official API, token)
+│   ├── codeforces.py          # codeforces.com contests (public API)
+│   ├── atcoder.py             # atcoder.jp contests
+│   ├── hackerearth.py         # hackerearth.com events (public JSON)
+│   ├── ethglobal.py           # ethglobal.com/events
+│   ├── aicrowd.py             # aicrowd.com/challenges
+│   └── mygov.py               # innovateindia.mygov.in challenges
 ├── data/
 │   └── sent_listings.db       # dedupe database (committed after each run)
 ├── config.py                  # thresholds, keywords, channel IDs (from env)
@@ -297,7 +306,8 @@ Everything lives at the top of `config.py`:
 | `MIN_PRIZE_USD` | `100` | Minimum prize for USD listings |
 | `PASS_UNKNOWN_PRIZE` | `False` | Allow listings with no prize info at all (every source, even no-prize ones) |
 | `PASS_LIKELY_CASH_PRIZE` | `True` | Let no-prize listings through when their source normally awards cash prizes |
-| `LIKELY_CASH_SOURCES` | `{devfolio, devpost, unstop, lablab, mlh, reskilll, codechef}` | Sources treated as "likely cash" when no amount is shown |
+| `LIKELY_CASH_SOURCES` | `{devfolio, devpost, unstop, lablab, mlh, reskilll, codechef, hackerrank}` | Sources treated as "likely cash" when no amount is shown |
+| `REQUIRE_KEYWORD_MATCH` | `False` | Require a `KEYWORDS` term in the title. `False` = alert every tech contest from these tech-only platforms |
 | `KEYWORDS` | `["ai", "blockchain", ...]` | At least one must match the title/tags |
 | `EXCLUDE_LOCATIONS` | `[]` | Drop listings whose location matches |
 | `REQUEST_DELAY_SECONDS` | `1.5` | Politeness delay between HTTP requests |
@@ -329,6 +339,21 @@ Everything lives at the top of `config.py`:
 - **Internshala** — parses competition cards. Internshala **frequently blocks bots**
   (HTTP 403). When blocked it logs a warning and returns nothing — the run
   continues. Seeing 0 Internshala listings is the block, not a bug.
+- **Codeforces** — public API (`/api/contest.list`); only upcoming (`BEFORE`)
+  contests. No prizes in the feed → alert via `LIKELY_CASH_SOURCES`.
+- **AtCoder** — parses the upcoming table on `atcoder.jp/contests` (needs a
+  browser User-Agent). No prizes in the feed → alert via `LIKELY_CASH_SOURCES`.
+- **HackerEarth** — public events JSON (`/chrome-extension/events/`). Usually
+  low volume; prizes are on the detail page → alert via `LIKELY_CASH_SOURCES`.
+- **ETHGlobal** — parses the events card list on `ethglobal.com/events`. Only
+  hackathon/summit events are kept (conferences/coworking are dropped). Prize
+  amounts aren't on the list page → alert via `LIKELY_CASH_SOURCES`.
+- **AIcrowd** — parses `aicrowd.com/challenges`; only challenges still running
+  (status text like "Phase 1: 4 days left") are kept, and the deadline is
+  derived from that text. Prizes are on the detail page → `LIKELY_CASH_SOURCES`.
+- **MyGov / Innovate India** — scrapes `innovateindia.mygov.in` challenge pages
+  (government challenges/grants). Low volume; some pages have no parseable
+  deadline, so they pass the deadline filter.
 
 Selectors may need occasional tweaks when a site changes its markup. Run
 `python main.py --dry-run` after any change to check output before enabling real

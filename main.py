@@ -3,6 +3,7 @@
 Run modes:
     python main.py               # fetch, filter, send alerts
     python main.py --dry-run     # fetch + filter only, print what would be sent
+    python main.py --repost      # send again even if already sent before
 """
 
 import argparse
@@ -50,6 +51,11 @@ def main():
         action="store_true",
         help="Fetch and filter but do not send any Telegram messages",
     )
+    parser.add_argument(
+        "--repost",
+        action="store_true",
+        help="Send every passing listing even if it was already sent before",
+    )
     args = parser.parse_args()
 
     setup_logging()
@@ -71,7 +77,7 @@ def main():
     for listing in passed:
         channel = route_channel(listing)
 
-        if is_duplicate(listing["url"]):
+        if is_duplicate(listing["url"]) and not args.repost:
             skipped_duplicates += 1
             logger.info("Duplicate, skipping: %s", listing["url"])
             continue

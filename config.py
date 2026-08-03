@@ -55,7 +55,21 @@ LIKELY_CASH_SOURCES = {
     "mlh",       # collegiate hackathons with sponsor prizes
     "reskilll",  # hackathons; prize shown when available
     "codechef",  # rated contests award cash to top finishers
+    "hackerrank",  # interviews/hiring contests award cash to top finishers
+    "codeforces",  # rated contests; no prize shown in the feed
+    "atcoder",   # rated contests; no prize shown in the feed
+    "hackerearth",  # hackathons/challenges; prizes on the detail page
+    "ethglobal",  # web3 hackathons with sponsor prizes
+    "aicrowd",   # AI/ML competitions; prizes on the detail page
+    "mygov",     # official government challenges/grants
 }
+
+# Require at least one KEYWORDS term in the title/tags before alerting.
+# All bundled sources are tech-contest platforms, so set this to False to
+# alert EVERY tech contest (hackathons + coding contests + CTFs + datathons),
+# even when its name doesn't literally contain a keyword like "hackathon".
+# KEYWORDS are still used to build the tags shown on each alert message.
+REQUIRE_KEYWORD_MATCH = False
 
 # A listing passes if at least one of these appears in its title or tags
 # (matched on word boundaries; multi-word phrases match as substrings).

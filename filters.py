@@ -12,6 +12,7 @@ from config import (
     MIN_PRIZE_USD,
     PASS_LIKELY_CASH_PRIZE,
     PASS_UNKNOWN_PRIZE,
+    REQUIRE_KEYWORD_MATCH,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,8 @@ def _prize_passes(listing: dict) -> bool:
 
 
 def _keyword_matches(listing: dict) -> bool:
+    if not REQUIRE_KEYWORD_MATCH:
+        return True
     text = f"{listing.get('title', '')} {' '.join(listing.get('tags') or [])}"
     return any(_text_matches(text, kw) for kw in KEYWORDS)
 
