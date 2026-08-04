@@ -1,0 +1,16 @@
+services:
+  university-intel:
+    build: .
+    container_name: university-intel
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - SCAN_INTERVAL=${SCAN_INTERVAL:-30}
+      - TZ=Asia/Kolkata
+    volumes:
+      # Persist the shared SQLite database (universities/sources/events/sent_listings)
+      - ./data:/app/data
+      # Persist module logs
+      - ./data/university_logs:/app/data/university_logs
+    command: ["python", "-m", "university_intel.worker"]

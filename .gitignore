@@ -12,5 +12,8 @@ venv/
 .DS_Store
 Thumbs.db
 
+# University Intelligence module logs
+data/university_logs/
+
 # NOTE: data/sent_listings.db is intentionally NOT ignored - it is committed
 # back to the repo after every GitHub Actions run so dedupe state persists.

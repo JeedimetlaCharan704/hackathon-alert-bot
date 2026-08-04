@@ -386,6 +386,106 @@ Alert Bot → (pick a run)**.
 
 ---
 
+## 🎓 University Intelligence (new module)
+
+A **drop-in module** that monitors official public university sources — news
+pages, event pages, innovation cells, incubation centres, startup cells,
+training & placement pages, department announcements, research centres,
+official RSS feeds and public calendars — and posts **student opportunities**
+(hackathons, coding contests, ideathons, startup/innovation challenges, AI
+competitions, workshops, bootcamps, internships, grants, scholarships,
+conferences, tech fests) through the **same Telegram pipeline** as the main bot.
+
+It does **not** touch any existing module. Everything lives under
+`university_intel/` and its tables live in the same `data/sent_listings.db`.
+
+### How it works
+
+```
+public university pages (RSS / events / news / innovation / sitemap)
+        │  async aiohttp scans (polite delay, retries)
+        ▼
+raw items ──► classifier + ignore filter (admissions, exams, results,
+        │     tenders, recruitment, circulars → dropped)
+        ▼
+dedupe (URL hash · main-bot store · title similarity · date)
+        ▼
+store in `events` table ──► publish via existing send_message()
+```
+
+### What the module provides
+
+| Piece | File |
+|---|---|
+| DB tables `universities`, `sources`, `events` | `university_intel/db.py` |
+| Async HTTP client (aiohttp, delay + retries) | `university_intel/http.py` |
+| Adapters: RSS, events page, news, innovation, announcements, generic | `university_intel/adapters/` |
+| Auto-discovery of event/RSS/innovation pages from homepages | `university_intel/discovery.py` |
+| 15-category classifier + ignore filter | `university_intel/classifier.py` |
+| Dedup (URL hash / title fuzzy / date / semantic) | `university_intel/dedupe.py`, `semantic.py` |
+| Publishing via existing `telegram_sender` | `university_intel/publisher.py` |
+| 30-min scheduler + retries + logs | `university_intel/scheduler.py`, `logging.py` |
+| Telegram admin commands | `university_intel/admin.py` |
+| Worker entry point (`--once` / daemon) | `university_intel/worker.py` |
+| Telangana seed list (44 institutions) | `university_intel/seeds.py` |
+| Unit tests | `tests/` |
+
+### Run it
+
+**GitHub Actions (free, zero setup)** — add a `university_scan.yml` workflow
+(already included) that runs `python -m university_intel.worker --once` every
+4 hours on the free tier. It shares your existing `BOT_TOKEN` secret. The
+existing `run_bot.yml` is untouched.
+
+> ⚠️ GitHub Actions can't do a true 30-minute cadence inside the free minute
+> budget, and short-lived jobs can't listen for Telegram commands.
+
+**Docker daemon (true 30-min + admin commands)** — for a real every-30-min
+loop with `/adduniversity` etc., run the container on any always-on machine:
+
+```bash
+docker compose up -d --build
+```
+
+Free always-on options: Oracle Cloud **Always Free** VM, or your own always-on
+PC/laptop. Logs: `data/university_logs/bot.log`.
+
+### Admin commands
+
+Set `ADMIN_CHAT_IDS` (comma-separated numeric chat IDs) in `.env`. The listener
+uses the **same** bot token — safe because the existing bot never calls
+`getUpdates`.
+
+```
+/adduniversity <name> <website> [state] [city]   # add + auto-discover pages
+/removeuniversity <name>
+/listuniversities
+/scan <name>          # scan one university now
+/forcescan            # scan everything with forced discovery
+/stats
+/help
+```
+
+### Key config (.env)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `SCAN_INTERVAL` | `30` | Minutes between daemon scans |
+| `ADMIN_CHAT_IDS` | empty | Chat IDs allowed to run commands |
+| `SEED_ON_EMPTY` | `true` | Auto-load the Telangana seed list |
+| `ENABLE_DISCOVERY` | `true` | Auto-find event/RSS pages from homepages |
+| `PUBLISH_OTHER_CATEGORY` | `false` | Publish unclassifiable announcements |
+| `REQUIRE_TITLE_SIGNAL` | `true` | Only publish titles that signal an opportunity |
+| `SEMANTIC_PROVIDER` | `local` | `local` (free) or `grok` (paid xAI API) |
+
+### Adding other states later
+
+Just add entries with a different `state` to `seeds.py` (or use
+`/adduniversity` with a state). The classifier, adapters, discovery and channel
+routing all read `state`, so nothing else changes.
+
+---
+
 ## Constraints honored
 
 - **$0** — no paid hosting, no paid APIs.
