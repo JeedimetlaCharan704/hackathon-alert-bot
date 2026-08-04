@@ -14,11 +14,12 @@ import logging
 import time
 
 from university_intel.adapters import ADAPTERS, RawItem
-from university_intel.classifier import process, title_has_signal
+from university_intel.classifier import PRIZE_CATEGORIES, mentions_prize, process, title_has_signal
 from university_intel.config import (
     MIN_TITLE_LENGTH,
     PUBLISH_OTHER_CATEGORY,
     REQUIRE_TITLE_SIGNAL,
+    UNIVERSITY_REQUIRE_PRIZE,
 )
 from university_intel.db import (
     add_event,
@@ -54,6 +55,10 @@ def normalize_item(item: RawItem, university: University, source_label: str) -> 
     if category == "Other" and not PUBLISH_OTHER_CATEGORY:
         logger.debug("not an opportunity [%s] %s", university.name, title)
         return None
+    if UNIVERSITY_REQUIRE_PRIZE and category not in PRIZE_CATEGORIES:
+        if not mentions_prize(title, item.description):
+            logger.debug("no prize mention [%s] %s", university.name, title)
+            return None
     return Event(
         id=None,
         university_id=university.id,

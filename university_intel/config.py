@@ -71,6 +71,13 @@ PUBLISH_OTHER_CATEGORY = (
 REQUIRE_TITLE_SIGNAL = (
     os.getenv("REQUIRE_TITLE_SIGNAL", "true").strip().lower() in {"1", "true", "yes"}
 )
+# Only publish prize-money opportunities: the announcement must mention a prize
+# (cash prize, reward, ₹/Rs./$ amount...) OR be from a category that normally
+# awards prizes (hackathons, contests, ideathons, ...). Non-prize events like
+# plain workshops/conferences/bootcamps are dropped.
+UNIVERSITY_REQUIRE_PRIZE = (
+    os.getenv("UNIVERSITY_REQUIRE_PRIZE", "true").strip().lower() in {"1", "true", "yes"}
+)
 MIN_TITLE_LENGTH = int(os.getenv("MIN_TITLE_LENGTH", "8"))
 
 # Semantic scorer. "local" = free offline fuzzy (default). "grok" = optional

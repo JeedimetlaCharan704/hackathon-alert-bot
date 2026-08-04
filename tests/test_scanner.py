@@ -31,10 +31,35 @@ def test_drops_other_category_when_disabled(monkeypatch):
 def test_keeps_other_category_when_enabled(monkeypatch):
     monkeypatch.setattr("university_intel.scanner.PUBLISH_OTHER_CATEGORY", True)
     monkeypatch.setattr("university_intel.scanner.REQUIRE_TITLE_SIGNAL", False)
+    monkeypatch.setattr("university_intel.scanner.UNIVERSITY_REQUIRE_PRIZE", False)
     item = RawItem(url="https://x.in/a", title="Campus gets a new water tank")
     ev = scanner.normalize_item(item, _uni(), "src")
     assert ev is not None
     assert ev.category == "Other"
+
+
+def test_prize_filter_drops_non_prize_events(monkeypatch):
+    monkeypatch.setattr("university_intel.scanner.PUBLISH_OTHER_CATEGORY", True)
+    monkeypatch.setattr("university_intel.scanner.REQUIRE_TITLE_SIGNAL", False)
+    monkeypatch.setattr("university_intel.scanner.UNIVERSITY_REQUIRE_PRIZE", True)
+    plain = RawItem(url="https://x.in/a", title="National Conference on AI")
+    assert scanner.normalize_item(plain, _uni(), "src") is None
+    no_prize_workshop = RawItem(url="https://x.in/b", title="Workshop on RAG to Reality")
+    assert scanner.normalize_item(no_prize_workshop, _uni(), "src") is None
+
+
+def test_prize_filter_keeps_prize_and_contest_events(monkeypatch):
+    monkeypatch.setattr("university_intel.scanner.PUBLISH_OTHER_CATEGORY", True)
+    monkeypatch.setattr("university_intel.scanner.REQUIRE_TITLE_SIGNAL", False)
+    monkeypatch.setattr("university_intel.scanner.UNIVERSITY_REQUIRE_PRIZE", True)
+    hackathon = RawItem(url="https://x.in/a", title="National Hackathon 2026 begins")
+    assert scanner.normalize_item(hackathon, _uni(), "src") is not None
+    prize_workshop = RawItem(
+        url="https://x.in/b",
+        title="Workshop on RAG",
+        description="Top projects win a cash prize of Rs. 20,000",
+    )
+    assert scanner.normalize_item(prize_workshop, _uni(), "src") is not None
 
 
 def test_title_signal_gate(monkeypatch):

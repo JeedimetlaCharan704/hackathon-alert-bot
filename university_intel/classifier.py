@@ -64,6 +64,39 @@ _OPPORTUNITY_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Prize-money signals. If any of these appear in the title or description the
+# announcement is treated as a prize-bearing opportunity.
+_PRIZE_WORD_RE = re.compile(
+    r"\b(cash\s+prize|prize\s+money|prize\s+pool|prize\s+amount|prizes?|"
+    r"reward|winner\s+gets|win\s+upto|winning\s+amount|incentive|"
+    r"award\s+of|worth\s+rs\.?|worth\s+₹|worth\s+\$)\b",
+    re.IGNORECASE,
+)
+# Currency / money-amount markers (₹, Rs., Lakh, Crore, $, USD, INR, ...).
+_PRIZE_CURRENCY_RE = re.compile(
+    r"(₹|rs\.?\s*\d|rupees|lakhs?|lacs?|crores?|"
+    r"\$\s*\d|\b\d+\s*(lakh|lac|crore)\b|usd\b|inr\b|euros?|€)",
+    re.IGNORECASE,
+)
+
+# Categories whose events normally award prizes to winners — these pass the
+# prize filter even when no amount is written on the announcement itself.
+PRIZE_CATEGORIES = {
+    "Hackathon",
+    "Coding Contest",
+    "Ideathon",
+    "Startup Challenge",
+    "Innovation Challenge",
+    "AI Competition",
+    "Research Competition",
+}
+
+
+def mentions_prize(title: str, description: str = "") -> bool:
+    """True if the text mentions a cash prize / reward (money marker present)."""
+    text = f"{title or ''} {description or ''}"[:4000]
+    return bool(_PRIZE_WORD_RE.search(text) or _PRIZE_CURRENCY_RE.search(text))
+
 
 def title_has_signal(title: str) -> bool:
     """True if the title itself points at a student opportunity."""

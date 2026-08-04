@@ -476,6 +476,7 @@ uses the **same** bot token — safe because the existing bot never calls
 | `ENABLE_DISCOVERY` | `true` | Auto-find event/RSS pages from homepages |
 | `PUBLISH_OTHER_CATEGORY` | `false` | Publish unclassifiable announcements |
 | `REQUIRE_TITLE_SIGNAL` | `true` | Only publish titles that signal an opportunity |
+| `UNIVERSITY_REQUIRE_PRIZE` | `true` | Only publish prize-money opportunities (announcement mentions a prize, or it's a prize-awarding category like hackathons/contests). Plain workshops/conferences/bootcamps are dropped. |
 | `SEMANTIC_PROVIDER` | `local` | `local` (free) or `grok` (paid xAI API) |
 
 ### Adding other states later

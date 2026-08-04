@@ -1,6 +1,12 @@
 """Tests for the classifier + ignore filter."""
 
-from university_intel.classifier import classify, process, should_publish
+from university_intel.classifier import (
+    PRIZE_CATEGORIES,
+    classify,
+    mentions_prize,
+    process,
+    should_publish,
+)
 
 
 def test_opportunities_classified():
@@ -45,3 +51,26 @@ def test_should_publish_drops_body_noise_when_not_opportunity():
 
 def test_classify_unknown_is_other():
     assert classify("Some random announcement about library timings") == "Other"
+
+
+def test_mentions_prize_detects_prize_text():
+    assert mentions_prize("National Ideathon with cash prize of Rs. 50,000") is True
+    assert mentions_prize("Workshop", "Winners get a cash prize of ₹1 Lakh") is True
+    assert mentions_prize("Paper Presentation Contest", "Best paper awarded $500") is True
+    assert mentions_prize("Hackathon", "Prize pool worth Rs. 2,00,000") is True
+
+
+def test_mentions_prize_false_for_plain_events():
+    assert mentions_prize("National Conference on AI") is False
+    assert mentions_prize("Workshop on RAG to Reality") is False
+    assert mentions_prize("5-Day Bootcamp on Full Stack") is False
+    assert mentions_prize("Scholarship awareness program") is False
+
+
+def test_prize_categories_pass_without_prize_text():
+    for category in PRIZE_CATEGORIES:
+        assert category != ""
+    assert "Hackathon" in PRIZE_CATEGORIES
+    assert "Coding Contest" in PRIZE_CATEGORIES
+    assert "Workshop" not in PRIZE_CATEGORIES
+    assert "Conference" not in PRIZE_CATEGORIES
