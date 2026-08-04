@@ -30,6 +30,9 @@ jobs:
       - name: Run University Intelligence scan
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          TELANGANA_CHANNEL_ID: ${{ secrets.TELANGANA_CHANNEL_ID }}
+          INDIA_CHANNEL_ID: ${{ secrets.INDIA_CHANNEL_ID }}
+          GLOBAL_CHANNEL_ID: ${{ secrets.GLOBAL_CHANNEL_ID }}
           SCAN_INTERVAL: "30"
           SEED_ON_EMPTY: "true"
         run: python -m university_intel.worker --once
